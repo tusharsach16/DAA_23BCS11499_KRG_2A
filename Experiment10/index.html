@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sorting Algorithm Visualizer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3);
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 2em;
+      background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .controls {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .controls label {
+      font-weight: 600;
+      color: #94a3b8;
+    }
+
+    .controls input, .controls select, .controls button {
+      padding: 8px 15px;
+      border-radius: 8px;
+      border: 2px solid #334155;
+      outline: none;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .controls input[type="text"] {
+      background: #0f172a;
+      color: white;
+      width: 200px;
+    }
+
+    .controls select {
+      background: #0f172a;
+      color: white;
+      cursor: pointer;
+    }
+
+    .controls input[type="range"] {
+      width: 150px;
+      cursor: pointer;
+    }
+
+    button {
+      cursor: pointer;
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      color: white;
+      font-weight: 600;
+      border: none;
+      box-shadow: 0 2px 10px rgba(14, 165, 233, 0.3);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(14, 165, 233, 0.5);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    #pauseBtn {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+
+    #resetBtn {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .info {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    #algorithmInfo {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    #algorithmInfo h3 {
+      color: #38bdf8;
+      margin-bottom: 10px;
+    }
+
+    #timeDisplay, #comparisonCount {
+      background: #0f172a;
+      padding: 15px 25px;
+      border-radius: 8px;
+      font-size: 1.1em;
+      font-weight: 600;
+      border: 2px solid #334155;
+    }
+
+    .visualizer-container {
+      background: #1e293b;
+      padding: 30px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      min-height: 400px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 5px;
+      height: 350px;
+    }
+
+    .bar {
+      min-width: 30px;
+      background: linear-gradient(180deg, #38bdf8, #0ea5e9);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      color: #000;
+      font-weight: bold;
+      font-size: 14px;
+      border-radius: 8px 8px 0 0;
+      transition: all 0.3s;
+      padding-bottom: 5px;
+      box-shadow: 0 -2px 10px rgba(56, 189, 248, 0.3);
+    }
+
+    .legend {
+      background: #1e293b;
+      padding: 15px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .color {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .normal { background: linear-gradient(135deg, #38bdf8, #0ea5e9); }
+    .compare { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .swap { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .sorted { background: linear-gradient(135deg, #10b981, #059669); }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #94a3b8;
+      border-top: 2px solid #334155;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 1.5em;
+      }
+      
+      .bars {
+        gap: 3px;
+      }
+      
+      .bar {
+        min-width: 20px;
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Efficiency in Order — Sorting Algorithms Visualizer</h1>
+  </div>
+
+  <div class="controls">
+    <label>Algorithm:</label>
+    <select id="algorithm">
+      <option value="bubble">Bubble Sort</option>
+      <option value="selection">Selection Sort</option>
+      <option value="insertion">Insertion Sort</option>
+      <option value="merge">Merge Sort</option>
+      <option value="quick">Quick Sort</option>
+    </select>
+
+    <label>Array Input:</label>
+    <input type="text" id="arrayInput" placeholder="e.g. 5,4,3,2,1" />
+    <button id="generateBtn">Generate Array</button>
+    <button id="randomBtn">Random Array</button>
+
+    <label>Speed:</label>
+    <input type="range" id="speedControl" min="50" max="1000" value="300" />
+    <button id="startBtn">Start</button>
+    <button id="pauseBtn">Pause</button>
+    <button id="resetBtn">Reset</button>
+  </div>
+
+  <div class="info">
+    <div id="algorithmInfo"></div>
+    <div id="timeDisplay">Elapsed Time: 0.00s</div>
+    <div id="comparisonCount">Comparisons: 0</div>
+  </div>
+
+  <div class="visualizer-container">
+    <div id="bars" class="bars"></div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="color normal"></span><span>Normal</span></div>
+    <div class="legend-item"><span class="color compare"></span><span>Comparing</span></div>
+    <div class="legend-item"><span class="color swap"></span><span>Swapping</span></div>
+    <div class="legend-item"><span class="color sorted"></span><span>Sorted</span></div>
+  </div>
+
+  <footer>
+    <p>Developed by Tushar | Algorithm Visualization Project</p>
+  </footer>
+
+  <script>
+    const barsContainer = document.getElementById('bars');
+    const algoSelect = document.getElementById('algorithm');
+    const generateBtn = document.getElementById('generateBtn');
+    const randomBtn = document.getElementById('randomBtn');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const speedControl = document.getElementById('speedControl');
+    const arrayInput = document.getElementById('arrayInput');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const comparisonCount = document.getElementById('comparisonCount');
+    const algorithmInfo = document.getElementById('algorithmInfo');
+
+    let array = [5, 4, 3, 2, 1];
+    let bars = [];
+    let delay = 300;
+    let running = false;
+    let paused = false;
+    let comparisons = 0;
+    let startTime, timerInterval;
+
+    const info = {
+      bubble: { name: "Bubble Sort", best: "O(n)", avg: "O(n²)", worst: "O(n²)" },
+      selection: { name: "Selection Sort", best: "O(n²)", avg: "O(n²)", worst: "O(n²)" },
+      insertion: { name: "Insertion Sort", best: "O(n)", avg: "O(n²)", worst: "O(n²)" },
+      merge: { name: "Merge Sort", best: "O(n log n)", avg: "O(n log n)", worst: "O(n log n)" },
+      quick: { name: "Quick Sort", best: "O(n log n)", avg: "O(n log n)", worst: "O(n²)" }
+    };
+
+    function updateInfo() {
+      const a = info[algoSelect.value];
+      algorithmInfo.innerHTML = `<h3>${a.name}</h3>
+      <p><b>Best:</b> ${a.best} | <b>Average:</b> ${a.avg} | <b>Worst:</b> ${a.worst}</p>`;
+    }
+
+    updateInfo();
+    algoSelect.addEventListener('change', updateInfo);
+    speedControl.addEventListener('input', () => (delay = parseInt(speedControl.value)));
+
+    function generateBars() {
+      barsContainer.innerHTML = '';
+      bars = [];
+      for (let num of array) {
+        const bar = document.createElement('div');
+        bar.classList.add('bar');
+        bar.style.height = `${num * 5}px`;
+        bar.textContent = num;
+        barsContainer.appendChild(bar);
+        bars.push(bar);
+      }
+    }
+
+    generateBars();
+
+    generateBtn.onclick = () => {
+      if (running) return;
+      const values = arrayInput.value.split(',').map(Number).filter(n => !isNaN(n) && n > 0);
+      if (values.length > 0) array = values;
+      generateBars();
+      comparisons = 0;
+      comparisonCount.textContent = `Comparisons: 0`;
+      timeDisplay.textContent = 'Elapsed Time: 0.00s';
+    };
+
+    randomBtn.onclick = () => {
+      if (running) return;
+      array = Array.from({ length: 10 }, () => Math.floor(Math.random() * 50) + 5);
+      generateBars();
+      comparisons = 0;
+      comparisonCount.textContent = `Comparisons: 0`;
+      timeDisplay.textContent = 'Elapsed Time: 0.00s';
+    };
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function startTimer() {
+      startTime = Date.now();
+      timerInterval = setInterval(() => {
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+        timeDisplay.textContent = `Elapsed Time: ${elapsed}s`;
+      }, 100);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+    }
+
+    function resetBarColors() {
+      bars.forEach(bar => bar.style.background = 'linear-gradient(180deg, #38bdf8, #0ea5e9)');
+    }
+
+    async function bubbleSort() {
+      let n = array.length;
+      for (let i = 0; i < n - 1 && running; i++) {
+        for (let j = 0; j < n - i - 1 && running; j++) {
+          while (paused && running) await sleep(100);
+          if (!running) break;
+          
+          comparisons++;
+          comparisonCount.textContent = `Comparisons: ${comparisons}`;
+          bars[j].style.background = "linear-gradient(135deg, #f59e0b, #d97706)";
+          bars[j+1].style.background = "linear-gradient(135deg, #f59e0b, #d97706)";
+          
+          if (array[j] > array[j + 1]) {
+            bars[j].style.background = "linear-gradient(135deg, #ef4444, #dc2626)";
+            bars[j+1].style.background = "linear-gradient(135deg, #ef4444, #dc2626)";
+            [array[j], array[j + 1]] = [array[j + 1], array[j]];
+            await sleep(delay);
+            generateBars();
+          } else {
+            await sleep(delay);
+            bars[j].style.background = "linear-gradient(180deg, #38bdf8, #0ea5e9)";
+            bars[j+1].style.background = "linear-gradient(180deg, #38bdf8, #0ea5e9)";
+          }
+        }
+        if (running && n - i - 1 < bars.length) {
+          bars[n - i - 1].style.background = "linear-gradient(135deg, #10b981, #059669)";
+        }
+      }
+      if (running) bars.forEach(bar => bar.style.background = "linear-gradient(135deg, #10b981, #059669)");
+    }
+
+    async function selectionSort() {
+      let n = array.length;
+      for (let i = 0; i < n - 1 && running; i++) {
+        let minIdx = i;
+        bars[i].style.background = "linear-gradient(135deg, #f59e0b, #d97706)";
+        
+        for (let j = i + 1; j < n && running; j++) {
+          while (paused && running) await sleep(100);
+          if (!running) break;
+          
+          comparisons++;
+          comparisonCount.textContent = `Comparisons: ${comparisons}`;
+          bars[j].style.background = "linear-gradient(135deg, #f59e0b, #d97706)";
+          
+          if (array[j] < array[minIdx]) {
+            bars[minIdx].style.background = "linear-gradient(180deg, #38bdf8, #0ea5e9)";
+            minIdx = j;
+          } else {
+            await sleep(delay);
+            bars[j].style.background = "linear-gradient(180deg, #38bdf8, #0ea5e9)";
+          }
+        }
+        
+        if (minIdx !== i) {
+          bars[minIdx].style.background = "linear-gradient(135deg, #ef4444, #dc2626)";
+          [array[i], array[minIdx]] = [array[minIdx], array[i]];
+          await sleep(delay);
+          generateBars();
+        }
+        bars[i].style.background = "linear-gradient(135deg, #10b981, #059669)";
+      }
+      if (running && bars.length > 0) bars[bars.length - 1].style.background = "linear-gradient(135deg, #10b981, #059669)";
+    }
+
+    async function insertionSort() {
+      let n = array.length;
+      if (bars.length > 0) bars[0].style.background = "linear-gradient(135deg, #10b981, #059669)";
+      
+      for (let i = 1; i < n && running; i++) {
+        let key = array[i];
+        let j = i - 1;
+        bars[i].style.background = "linear-gradient(135deg, #f59e0b, #d97706)";
+        await sleep(delay);
+        
+        while (j >= 0 && array[j] > key && running) {
+          while (paused && running) await sleep(100);
+          if (!running) break;
+          
+          comparisons++;
+          comparisonCount.textContent = `Comparisons: ${comparisons}`;
+          bars[j].style.background = "linear-gradient(135deg, #ef4444, #dc2626)";
+          array[j + 1] = array[j];
+          j--;
+          generateBars();
+          await sleep(delay);
+        }
+        array[j + 1] = key;
+        generateBars();
+        for (let k = 0; k <= i; k++) {
+          bars[k].style.background = "linear-gradient(135deg, #10b981, #059669)";
+        }
+      }
+    }
+
+    async function mergeSort(l = 0, r = array.length - 1) {
+      if (!running) return;
+      if (l >= r) return;
+      
+      const m = Math.floor((l + r) / 2);
+      await mergeSort(l, m);
+      await mergeSort(m + 1, r);
+      
+      const left = array.slice(l, m + 1);
+      const right = array.slice(m + 1, r + 1);
+      let i = 0, j = 0, k = l;
+      
+      while (i < left.length && j < right.length) {
+        while (paused && running) await sleep(100);
+        if (!running) break;
+        
+        comparisons++;
+        comparisonCount.textContent = `Comparisons: ${comparisons}`;
+        
+        if (left[i] <= right[j]) {
+          array[k++] = left[i++];
+        } else {
+          array[k++] = right[j++];
+        }
+        generateBars();
+        await sleep(delay);
+      }
+      
+      while (i < left.length) array[k++] = left[i++];
+      while (j < right.length) array[k++] = right[j++];
+      
+      generateBars();
+      for (let idx = l; idx <= r && idx < bars.length; idx++) {
+        bars[idx].style.background = "linear-gradient(135deg, #10b981, #059669)";
+      }
+      await sleep(delay);
+    }
+
+    async function quickSort(low = 0, high = array.length - 1) {
+      if (low < high && running) {
+        let p = await partition(low, high);
+        await quickSort(low, p - 1);
+        await quickSort(p + 1, high);
+      }
+    }
+
+    async function partition(low, high) {
+      let pivot = array[high];
+      let i = low - 1;
+      bars[high].style.background = "linear-gradient(135deg, #8b5cf6, #7c3aed)";
+      
+      for (let j = low; j < high && running; j++) {
+        while (paused && running) await sleep(100);
+        if (!running) break;
+        
+        comparisons++;
+        comparisonCount.textContent = `Comparisons: ${comparisons}`;
+        bars[j].style.background = "linear-gradient(135deg, #f59e0b, #d97706)";
+        
+        if (array[j] < pivot) {
+          i++;
+          bars[i].style.background = "linear-gradient(135deg, #ef4444, #dc2626)";
+          [array[i], array[j]] = [array[j], array[i]];
+          await sleep(delay);
+          generateBars();
+        } else {
+          await sleep(delay);
+          bars[j].style.background = "linear-gradient(180deg, #38bdf8, #0ea5e9)";
+        }
+      }
+      
+      [array[i + 1], array[high]] = [array[high], array[i + 1]];
+      generateBars();
+      bars[i + 1].style.background = "linear-gradient(135deg, #10b981, #059669)";
+      await sleep(delay);
+      return i + 1;
+    }
+
+    startBtn.onclick = async () => {
+      if (running) return;
+      
+      running = true;
+      paused = false;
+      comparisons = 0;
+      startTimer();
+      resetBarColors();
+      
+      let algo = algoSelect.value;
+      if (algo === "bubble") await bubbleSort();
+      else if (algo === "selection") await selectionSort();
+      else if (algo === "insertion") await insertionSort();
+      else if (algo === "merge") await mergeSort();
+      else if (algo === "quick") await quickSort();
+      
+      stopTimer();
+      running = false;
+    };
+
+    pauseBtn.onclick = () => { 
+      if (running) {
+        paused = !paused;
+        pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+      }
+    };
+
+    resetBtn.onclick = () => { 
+      running = false;
+      paused = false;
+      stopTimer();
+      array = [5, 4, 3, 2, 1];
+      comparisons = 0;
+      generateBars();
+      comparisonCount.textContent = 'Comparisons: 0';
+      timeDisplay.textContent = 'Elapsed Time: 0.00s';
+      pauseBtn.textContent = 'Pause';
+    };
+  </script>
+</body>
+</html>
